@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book DJ Ben Thomas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full p-8">
+    <div class="flex items-center gap-3 mb-4">
+      <img src="logo.png" alt="DJ Ben Thomas Logo" class="h-12 w-12 rounded-full shadow">
+      <div>
+        <h1 class="text-3xl font-bold">Book DJ Ben Thomas</h1>
+        <p class="text-sm text-gray-500">Wedding DJ / MC • Middle Tennessee</p>
+      </div>
+    </div>
+    <p class="text-gray-600 mb-2">Secure your date with a 25% deposit</p>
+    <p class="text-green-700 font-semibold mb-6">Photobooth $300 — FREE promo when you click Continue</p>
+
+    <form id="bookingForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium">Full Name</label>
+        <input required class="w-full border rounded p-2" type="text" name="name">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Email</label>
+        <input required class="w-full border rounded p-2" type="email" name="email">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Phone</label>
+        <input required class="w-full border rounded p-2" type="tel" name="phone">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Event Location (City / Venue)</label>
+        <input required class="w-full border rounded p-2" type="text" name="location">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Event Date</label>
+        <input required class="w-full border rounded p-2" type="date" name="date">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Event Type</label>
+        <select class="w-full border rounded p-2" name="type">
+          <option>Wedding</option>
+          <option>Corporate Event</option>
+          <option>Private Party</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Package</label>
+        <select class="w-full border rounded p-2" name="package" id="package">
+          <option value="950">Wedding DJ/MC – 5 Hours ($950)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Add-Ons</label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2"><input type="checkbox" name="addons" value="photobooth" data-price="0"> Photobooth ($300 — Promo Free)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="addons" value="ceremony" data-price="0"> Ceremony Audio (FREE)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="addons" value="extra_hour" data-price="150"> Extra Hour ($150)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="addons" value="uplighting" data-price="250"> Uplighting ($250)</label>
+          <label class="flex items-center gap-2"><input type="checkbox" name="addons" value="video" data-price="500"> Videography Highlight ($500)</label>
+          
+        </div>
+      </div>
+
+      <div class="bg-gray-50 border rounded p-3">
+        <p class="text-xs text-gray-600 mb-1">* Travel fee: $50 if over 40 miles from Hendersonville, TN</p>
+        <p class="text-sm">Total: <span id="totalPrice">$950</span></p>
+        <p class="text-sm font-semibold">Deposit (25%): <span id="depositAmount">$237.50</span></p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium">Message (optional)</label>
+        <textarea class="w-full border rounded p-2" name="message"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-black text-white py-3 rounded-xl hover:opacity-90 transition">Continue to Deposit</button>
+      <p class="text-xs text-gray-500 text-center">Questions? Call or text 661-533-0100</p>
+    </form>
+
+    <div id="success" class="hidden mt-6 text-center">
+      <h2 class="text-xl font-semibold mb-2">Almost Done!</h2>
+      <p class="mb-4">Click below to pay your deposit and lock in your date.</p>
+      <a id="paymentLink" href="#" class="inline-block bg-green-600 text-white px-6 py-3 rounded-xl hover:opacity-90 transition">Pay Deposit</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+    const success = document.getElementById('success');
+    const paymentLink = document.getElementById('paymentLink');
+
+    const packageSelect = document.getElementById('package');
+    const addonCheckboxes = document.querySelectorAll('input[name="addons"]');
+    const totalPriceEl = document.getElementById('totalPrice');
+    const depositAmountEl = document.getElementById('depositAmount');
+
+    function calculateTotals() {
+      let total = parseFloat(packageSelect.value);
+      addonCheckboxes.forEach(cb => { if (cb.checked) total += parseFloat(cb.dataset.price); });
+      const deposit = (total * 0.25).toFixed(2);
+      totalPriceEl.textContent = `$${total.toFixed(2)}`;
+      depositAmountEl.textContent = `$${deposit}`;
+      return { total, deposit };
+    }
+
+    packageSelect.addEventListener('change', calculateTotals);
+    addonCheckboxes.forEach(cb => cb.addEventListener('change', calculateTotals));
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const data = new FormData(form);
+      const location = data.get('location');
+      const name = data.get('name');
+      const email = data.get('email');
+      const phone = data.get('phone');
+      const date = data.get('date');
+      const type = data.get('type');
+      const pkg = data.get('package');
+      const addons = Array.from(document.querySelectorAll('input[name="addons"]:checked')).map(cb => cb.value).join(', ');
+      const totals = calculateTotals();
+
+      // TODO: Replace this Square link with your actual Square Payment Link
+      const squarePaymentURL = 'https://square.link/u/YOUR_PAYMENT_LINK'; // Replace with your real Square link
+
+      const query = `?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&location=${encodeURIComponent(location)}&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&package=${encodeURIComponent(pkg)}&addons=${encodeURIComponent(addons)}&total=${encodeURIComponent(totals.total)}&deposit=${encodeURIComponent(totals.deposit)}`;
+
+      paymentLink.href = squarePaymentURL + query;
+
+      form.classList.add('hidden');
+      success.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
