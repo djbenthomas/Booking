@@ -121,31 +121,28 @@
     addonCheckboxes.forEach(cb => cb.addEventListener('change', calculateTotals));
 
     form.addEventListener('submit', function(e) {
-      e.preventDefault();
-
+      // allow FormSubmit to send email
       const data = new FormData(form);
-      const location = data.get('location');
       const name = data.get('name');
       const email = data.get('email');
       const phone = data.get('phone');
+      const location = data.get('location');
       const date = data.get('date');
       const type = data.get('type');
       const pkg = data.get('package');
       const addons = Array.from(document.querySelectorAll('input[name="addons"]:checked')).map(cb => cb.value).join(', ');
       const totals = calculateTotals();
 
-      // TODO: Replace this Square link with your actual Square Payment Link
-      const squarePaymentURL = 'https://square.link/u/Vb6yN3eH'; // Replace with your real Square link
+      const squarePaymentURL = 'https://square.link/u/Vb6yN3eH';
 
       const query = `?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}&location=${encodeURIComponent(location)}&date=${encodeURIComponent(date)}&type=${encodeURIComponent(type)}&package=${encodeURIComponent(pkg)}&addons=${encodeURIComponent(addons)}&total=${encodeURIComponent(totals.total)}&deposit=${encodeURIComponent(totals.deposit)}`;
 
       paymentLink.href = squarePaymentURL + query;
 
-      form.classList.add('hidden');
-      success.classList.remove('hidden');
-    });
-  </script>
+      // redirect to Square after short delay
+      setTimeout(() => {
+        window.location.href = paymentLink.href;
+      }, 1500);
+    });  </script>
 </body>
 </html>
-
-   
